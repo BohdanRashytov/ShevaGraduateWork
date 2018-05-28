@@ -1,0 +1,6 @@
+*.xml
+*.iml
+*.properties
+.idea/
+project/
+target/

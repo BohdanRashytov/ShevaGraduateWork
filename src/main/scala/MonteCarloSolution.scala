@@ -9,11 +9,21 @@ object MonteCarloSolution extends Method {
   case class TimePoint(timeId: Double, action: Action, priority: Int = 0)
 
 
-  val N = 10000
-  val inputStream = (1 to N).map(_ => (-1)*Math.log(1 -  Math.random())/lambda)
-  val inputTimePoint = (1 to N).map(i => TimePoint(inputStream.take(i).sum, Arrival, i))
+  val N = 1000000
+  var inputTimePoint = {
+    def nextElement = (-1)*Math.log(1 -  Math.random())/lambda
+    var sum = 0.0
+    (1 to N).map(i => {
+      sum += nextElement
+      TimePoint(sum, Arrival, i)
+    }).toList
+  }
 
-  var timesPoint = inputTimePoint.toList
+  var timesPoint = {
+    val element = inputTimePoint.head
+    inputTimePoint = inputTimePoint.drop(1)
+    List(element)
+  }
   var freeChannels = n
 
   var stateTime = Map[Int, Double]().withDefaultValue(0.0)
@@ -36,22 +46,28 @@ object MonteCarloSolution extends Method {
         case Arrival if freeChannels > 0 =>
           timesPoint = timesPoint.drop(1)
           freeChannels -= 1
-          timesPoint = (timesPoint ::: List(TimePoint(action.timeId + generateHandleTime, Handled))).sortBy(_.timeId)
+          if (inputTimePoint.nonEmpty) {
+            timesPoint = (inputTimePoint.head :: timesPoint ::: List(TimePoint(action.timeId + generateHandleTime, Handled))).sortBy(_.timeId)
+            inputTimePoint = inputTimePoint.drop(1)
+          } else {
+            timesPoint = (timesPoint ::: List(TimePoint(action.timeId + generateHandleTime, Handled))).sortBy(_.timeId)
+          }
           requestInSystem += 1
         case Arrival =>
           val nextHandler = timesPoint.find(_.action == Handled).map(_.timeId).get
           timesPoint = timesPoint.drop(1)
-          timesPoint = (timesPoint ::: List(TimePoint(nextHandler, Handled))).sortBy(_.timeId)
+          if (inputTimePoint.nonEmpty) {
+            timesPoint = (inputTimePoint.head :: timesPoint ::: List(TimePoint(nextHandler, Handled))).sortBy(_.timeId)
+            inputTimePoint = inputTimePoint.drop(1)
+          } else {
+            timesPoint = (timesPoint ::: List(TimePoint(nextHandler, Handled))).sortBy(_.timeId)
+          }
           requestInSystem += 1
       }
     }
   }
 
   def generateHandleTime = (-1)*Math.log(1 -  Math.random())/mu
-
-  def add(list: List[TimePoint], timePoint: TimePoint): List[TimePoint] = {
-    List()
-  }
 
   def calculate: List[Double] = {
     processing

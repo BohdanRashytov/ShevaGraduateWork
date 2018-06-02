@@ -1,4 +1,4 @@
-package shevagraduatework
+import GraduateWork.TimeStates
 
 object MonteCarloSolution extends Method {
 
@@ -9,7 +9,7 @@ object MonteCarloSolution extends Method {
   case class TimePoint(timeId: Double, action: Action, priority: Int = 0)
 
 
-  val N = 1000000
+  val N = 10000
   var inputTimePoint = {
     def nextElement = (-1)*Math.log(1 -  Math.random())/lambda
     var sum = 0.0
@@ -18,6 +18,10 @@ object MonteCarloSolution extends Method {
       TimePoint(sum, Arrival, i)
     }).toList
   }
+
+  var startPoints: List[Double] = List()
+  startPoints = inputTimePoint.map(_.timeId)
+  var endPoints: List[Double] = List()
 
   var timesPoint = {
     val element = inputTimePoint.head
@@ -40,6 +44,7 @@ object MonteCarloSolution extends Method {
 
       action.action match {
         case Handled =>
+          endPoints = endPoints ::: List(timesPoint.head.timeId)
           timesPoint = timesPoint.drop(1)
           freeChannels += 1
           requestInSystem -= 1
@@ -75,4 +80,21 @@ object MonteCarloSolution extends Method {
     val max = stateTime.keys.max
     (0 to max).map(k => stateTime(k) / sum).toList
   }
+
+  def getStartPoints() = startPoints
+
+  def getEndPoints() = endPoints
+
+  def getTimeStates(times: List[Double]): List[TimeStates] = {
+    times.map(time => {
+      val input = startPoints.count(_ < time)
+      val output = endPoints.count(_ < time)
+      val state = input - output
+      val ePoints = endPoints.filter(_ >= time).take(state max n)
+      val sPoints = startPoints.drop(output).take(state max n)
+      TimeStates(state, sPoints, ePoints)
+    })
+  }
+
+
 }

@@ -1,5 +1,3 @@
-package shevagraduatework
-
 import java.awt.{Color, Frame}
 import javax.swing.JFrame
 

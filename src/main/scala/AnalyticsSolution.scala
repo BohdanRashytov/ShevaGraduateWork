@@ -1,5 +1,3 @@
-package shevagraduatework
-
 object AnalyticsSolution extends Method{
   def calculate: List[Double] = if (rho / n < 1) {
     val p0 = 1.0 / ((0 to n).map(k => Math.pow(rho, k)/(1 to k).product).sum + Math.pow(rho, n+1)/((1 to n).product*(n-rho)))

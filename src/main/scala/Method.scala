@@ -1,5 +1,3 @@
-package shevagraduatework
-
 trait Method {
   val lambda = GraduateWork.lambda
   val mu = GraduateWork.mu

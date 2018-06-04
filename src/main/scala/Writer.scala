@@ -21,12 +21,12 @@ object Writer {
     buffer.write("\n")
     buffer.write("\n")
 
-    list.take(maxU + 1).zipWithIndex.foreach(pair => {
+    list.take(maxU).zipWithIndex.foreach(pair => {
       buffer.write(s"P${pair._2} = ${pair._1}")
       buffer.write("\n")
     })
 
-    buffer.write(s"P$maxU+ = ${1 - list.take(maxU + 1).sum}")
+    buffer.write(s"P$maxU+ = ${1 - list.take(maxU).sum}")
     buffer.write("\n")
 
     buffer.flush()

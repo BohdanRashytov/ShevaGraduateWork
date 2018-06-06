@@ -2,7 +2,7 @@ import GraduateWork.TimeStates
 
 object MonteCarloSolution extends Method {
 
-  val N = Math.pow(10, 3).toInt
+  val N = Math.pow(10, 4).toInt
 
   var inFuture: List[Double] = {
     def nextElement = (-1) * Math.log(1 - Math.random()) / lambda
@@ -21,9 +21,9 @@ object MonteCarloSolution extends Method {
 
   def getMinTime = inFuture.headOption.getOrElse(Double.MaxValue) min inProcessing.headOption.getOrElse(Double.MaxValue)
 
-  def nextArrival = inFuture.nonEmpty && getMinTime == inFuture.headOption.getOrElse(Double.MaxValue)
+  def nextArrival = inFuture.nonEmpty && getMinTime == inFuture.head
 
-  def nextHandled = inProcessing.nonEmpty && getMinTime == inProcessing.headOption.getOrElse(Double.MaxValue)
+  def nextHandled = inProcessing.nonEmpty && getMinTime == inProcessing.head
 
   def isFree = inProcessing.size < n
 
@@ -82,20 +82,6 @@ object MonteCarloSolution extends Method {
   def getMaxT = endPoints.last
 
   def getTimeStates(times: List[Double]): List[TimeStates] = {
-    {
-      val time = 0.0
-      val nextTime = times(1)
-
-      val inFuture = startPoints.filter(p => p > time && p < nextTime)
-
-      val input = startPoints.count(_ < time)
-      val output = endPoints.count(_ < time)
-      val inQueue = (input - output - n) max 0
-
-      val inProcessing = endPoints.filter(_ > time).take((input - output) min n)
-
-      TimeStates(inFuture, inQueue, inProcessing)
-    } ::
     times.indices.map(i => {
       val time = times(i)
       val nextTime = if (i == times.size - 1) Double.MaxValue else times(i+1)

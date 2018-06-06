@@ -16,7 +16,8 @@ object FastSimulation {
 
 
 
-  def processing(times: List[Double], states: List[TimeStates], endMax: Double): Unit = times.indices.foreach(i => processing(times(i), if (i == times.size - 1) endMax else times(i+1), states(i)))
+  def processing(times: List[Double], states: List[TimeStates], endMax: Double): Unit = times.indices.foreach(i =>
+    processing(times(i), if (i == times.size - 1) endMax else times(i+1), states(i)))
 
   def processing(time: Double, nexTime: Double, timeStates: TimeStates): Unit = {
     var inFuture = timeStates.inFuture
@@ -29,22 +30,20 @@ object FastSimulation {
 
     def getMinTime = inFuture.headOption.getOrElse(Double.MaxValue) min inProcessing.headOption.getOrElse(Double.MaxValue)
 
-    def nextArrival = inFuture.nonEmpty && getMinTime == inFuture.headOption.getOrElse(Double.MaxValue)
+    def nextArrival = inFuture.nonEmpty && getMinTime == inFuture.head
 
-    def nextHandled = inProcessing.nonEmpty && getMinTime == inProcessing.headOption.getOrElse(Double.MaxValue)
+    def nextHandled = inProcessing.nonEmpty && getMinTime == inProcessing.head
 
     def isFree = inProcessing.size < n
 
     def existQueue = inQueue > 0
-
-    def flag = inFuture.size + inQueue + inProcessing.size > 0
 
     def achievedGoal(t: Double) = inProcessing.headOption.getOrElse(Double.MaxValue) > t && inFuture.headOption.getOrElse(Double.MaxValue) > t
 
     var exitConditions = false
 
     def goToTime(t: Double) = {
-      while (flag && !achievedGoal(t)) {
+      while (!achievedGoal(t)) {
         if (nextArrival && inFuture.head <= t) {
           val arrival = inFuture.head
           currentTime = arrival
@@ -65,6 +64,7 @@ object FastSimulation {
           }
         }
       }
+      currentTime = t
     }
 
     while (!exitConditions){
@@ -82,7 +82,7 @@ object FastSimulation {
         case (_, true) =>
           exitConditions = true
         case (_, _) =>
-          val clearHandle = inProcessing.head
+          val clearHandle = inProcessing.min
           goToTime(clearHandle)
       }
     }

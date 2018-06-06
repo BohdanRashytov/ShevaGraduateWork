@@ -1,7 +1,7 @@
 object GraduateWork {
 
-  val lambda = 1.0
-  val mu = 1.0
+  val lambda = 0.8
+  val mu = 1.2
   val rho = lambda / mu
   val n = 3
   val delta = 1.0
@@ -22,10 +22,10 @@ object GraduateWork {
 
     time = System.currentTimeMillis()
     val T = (monteCarloSolution.getMaxT / delta).toInt
-    val times = (1 to T).map(_ * delta).toList
+    val times = (0 to T).map(_ * delta).toList
     val states = monteCarloSolution.getTimeStates(times)
     val fastSimulation = FastSimulation
-    fastSimulation.processing(times, states, monteCarloSolution.getMaxT)
+    fastSimulation.processing(times.drop(1), states.drop(1), monteCarloSolution.getMaxT)
     val fastCalculate = fastSimulation.getPu()
     println(s"Success Fast Simulation (${(System.currentTimeMillis() - time) / 1000.0})")
 
@@ -40,8 +40,5 @@ object GraduateWork {
     println("Monte Carlo = " + (1 - monteCarloCalculate.take(U).sum))
     println("FastSimulation = " + fastCalculate)
 
-
-    //    Graph.paintLines(analyticsCalculate, monteCarloCalculate)
-    //    Graph.paintDiff(analyticsCalculate, monteCarloCalculate)
   }
 }

@@ -1,9 +1,9 @@
 FastSimulation
-lambda = 1.0
-mu = 1.0
-rho = 1.0
+lambda = 0.8
+mu = 1.2
+rho = 0.6666666666666667
 channel = 3
 
 delta = 1.0
 
-P5+ = 0.004389089596665089
+P5+ = 0.004011215539935964

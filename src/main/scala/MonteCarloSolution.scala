@@ -1,8 +1,11 @@
-import GraduateWork.TimeStates
+import GraduateWork._
+import java.lang.Math._
 
 object MonteCarloSolution extends Method {
 
   val N = Math.pow(10, 4).toInt
+
+  var alpha: List[Double] = List()
 
   var inFuture: List[Double] = {
     def nextElement = (-1) * Math.log(1 - Math.random()) / lambda
@@ -47,6 +50,7 @@ object MonteCarloSolution extends Method {
     while (flag) {
       if (nextArrival) {
         val arrival = inFuture.head
+        alpha = (if (requestInSystem >= U) arrival - currentTime else 0.0) :: alpha
         calState(arrival)
         inFuture = inFuture.tail
         if (isFree) {
@@ -57,6 +61,7 @@ object MonteCarloSolution extends Method {
         else inQueue += 1
       } else if (nextHandled) {
         val handled = inProcessing.head
+        alpha = (if (requestInSystem >= U) handled - currentTime else 0.0) :: alpha
         calState(handled)
         inProcessing = inProcessing.tail
         if (existQueue) {
@@ -96,6 +101,18 @@ object MonteCarloSolution extends Method {
 
       TimeStates(inFuture, inQueue, inProcessing)
     }).toList
+  }
+
+  def getStandardDeviation() = {
+    val sum = stateTime.values.sum
+    val max = stateTime.keys.max
+    val Pu = (0 to max).map(k => stateTime(k) / sum).toList.drop(U).sum
+    val T = getMaxT
+    val G = 2 * N
+
+//    println(alpha.sum / T)
+
+    alpha.map(a => pow(a * G / T - Pu, 2)).sum / G
   }
 
 

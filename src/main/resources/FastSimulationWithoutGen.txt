@@ -1,9 +1,0 @@
-FastSimulationWithoutGen
-lambda = 0.6
-mu = 0.6
-rho = 1.0
-channel = 3
-
-delta = 1.0
-
-P5+ = 0.014178414851764552

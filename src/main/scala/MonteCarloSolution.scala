@@ -1,9 +1,7 @@
 import GraduateWork._
 import java.lang.Math._
 
-object MonteCarloSolution extends Method {
-
-  val N = Math.pow(10, 4).toInt
+class MonteCarloSolution() extends Method {
 
   var alpha: List[Double] = List()
 

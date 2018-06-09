@@ -1,6 +1,6 @@
 import GraduateWork._
 
-object FastSimulationWithGen {
+class FastSimulation() {
 
   var pi: List[Double]= List()
   var alphaI: List[Double]= List()
@@ -8,8 +8,6 @@ object FastSimulationWithGen {
   def F(delta: Double) = 1 - Math.exp(-lambda*delta)
 
   def generateHandleTime = (-1) * Math.log(1 - Math.random()) / mu
-
-  def generateArrivalTime = (-1) * Math.log(1 - Math.random()) / lambda
 
   def uniform = Math.random()
 
@@ -19,7 +17,7 @@ object FastSimulationWithGen {
     processing(times(i), if (i == times.size - 1) endMax else times(i+1), states(i)))
 
   def processing(time: Double, nextTime: Double, timeStates: TimeStates): Unit = {
-    var inFuture: List[Double] = List()
+    var inFuture = timeStates.inFuture
     var inQueue = timeStates.inQueue
     var inProcessing = timeStates.inProcessing
     var currentTime = time
@@ -71,35 +69,21 @@ object FastSimulationWithGen {
     }
 
     while (!exitConditions){
-      (requestInSystem < U, inProcessing.headOption.getOrElse(Double.MaxValue) > nextTime) match {
-        case (true, _) =>
+      requestInSystem < U match {
+        case true =>
           var condition = false
           while (!condition) {
             val tau = calculateTau(nextTime - currentTime)
             inFuture = ((currentTime + tau) :: inFuture).sorted
             p = p * F(nextTime - currentTime)
             goToTime(currentTime + tau)
-            condition = requestInSystem >= U && inProcessing.sorted.headOption.getOrElse(Double.MaxValue) > nextTime
+            condition = requestInSystem >= U
           }
           exitConditions = true
-          if (requestInSystem >= U) alpha += nextTime - currentTime
-        case (_, true) =>
+          goToTime(nextTime)
+        case false =>
           exitConditions = true
-          if (requestInSystem >= U) alpha += nextTime - currentTime
-        case (_, _) =>
-          val clearHandle = inProcessing.min
-
-          var sum = currentTime
-          var arrivalList: List[Double] = List()
-
-          while (sum < clearHandle) {
-            val arrival = sum + generateArrivalTime
-            sum = arrival
-            arrivalList = arrival :: arrivalList
-          }
-          inFuture = inFuture ::: arrivalList.sorted.dropRight(1)
-
-          goToTime(clearHandle)
+          goToTime(nextTime)
       }
     }
 
@@ -107,14 +91,7 @@ object FastSimulationWithGen {
     alphaI = alpha :: alphaI
   }
 
-  def getPu() = pi.sum / pi.size
-
   def getPuWithL() = pi.indices.map(i => pi(i)*alphaI(i)).sum / pi.size
-
-  def getStandardDeviation() = {
-    val p = getPu()
-    pi.map(i => (i- p)*(i-p)).sum/(pi.size - 1)
-  }
 
   def getStandardDeviationWithL() = {
     val p = getPuWithL()
